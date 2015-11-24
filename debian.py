@@ -98,7 +98,7 @@ def get_all_debian2(download=True):
                     continue
                 if ('s390' in name)|('mips' in name) | ('loongson' in name):
                     continue
-                if ('alpha' in name)|('sparc' in name):
+                if ('alpha' in name)|('sparc' in name)|('libc-l10n' in name):
                     continue
                 if 'libc' not in name:
                     continue

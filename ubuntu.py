@@ -126,7 +126,8 @@ def import_deb_from_local(dir):
             if file_name in pkg_urls:
                 continue
 
-            deb_add_to_pkg_db(file_path)
+            print 'add:'+file_name
+            deb_add_to_pkg_db(file_path, file_name)
 
             pkg_urls.append(file_name)
 

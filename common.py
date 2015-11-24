@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # encoding:utf-8
+import re
+
 __author__ = 'ling'
 
 import os
@@ -49,6 +51,14 @@ def find_files(filename):
     else:
         return None
 
+def find_file_by_re(pattern):
+    for rt, dirs, files in os.walk('.'):
+        for file in files:
+            matches = re.findall(pattern, file)
+            if matches:
+                return os.path.join(rt, file)
+    return None
+
 
 def deb_extract(deb_path):
     cur_dir = os.getcwd()
@@ -67,12 +77,16 @@ def deb_extract(deb_path):
         pass
     libc = find_file('libc.so.6')
 
-    remove_cmd = 'rm -rf .'+deb_tmp_dir+'*'
+    remove_cmd = 'rm -rf '+deb_tmp_dir+'*'
 
     if libc is None:
-        os.chdir(cur_dir)
-        os.popen(remove_cmd)
-        return None
+        # find libc-[\d\.]*\.so$
+        # find libc.so.[\d\.]*
+        libc = find_file_by_re('libc.so.[\d\.]*$')
+        if libc is None:
+            os.chdir(cur_dir)
+            os.popen(remove_cmd)
+            return None
     libc = os.path.realpath(libc)
 
     new_libc = './libc/' + deb_file[0:-4] + '.so.6'
@@ -203,10 +217,12 @@ def get_one_arch(arch_url, arch_file):
 
     return arch_add_to_pkg_db(arch_save_dir + arch_file)
 
-def deb_add_to_pkg_db(deb_path):
+def deb_add_to_pkg_db(deb_path, deb_file=None):
     new_libc = deb_extract(deb_path)
 
-    deb_file = os.path.basename(deb_path)
+    if deb_file is None:
+        deb_file = os.path.basename(deb_path)
+
     if new_libc is None:
         print 'not find libc.so.6:' + deb_file
         return False
